@@ -56,6 +56,15 @@ static const int8_t exti_config[2][32] = {
     #error Please define a proper CPU_MODEL.
 #endif
 };
+    
+/**
+ * @name   Available core clock configurations
+ * @{
+ */
+#define CLOCK_USE_PLL       (0)
+#define CLOCK_USE_DFLL      (1)
+#define CLOCK_USE_8MHZ      (2)
+/** @} */
 
 /**
  * @brief   Available ports on the SAMD21
