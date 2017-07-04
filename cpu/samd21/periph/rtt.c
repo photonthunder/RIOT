@@ -23,10 +23,14 @@
 #include "cpu.h"
 #include "periph/rtt.h"
 #include "periph_conf.h"
+#include "periph_clock_config.h"
 
 /* guard file in case no RTT device was specified */
 #if RTT_NUMOF
 
+#ifndef GEN2_XOSC32
+#error Set GEN2_XOSC32 in periph_conf.h to use RTT
+#endif
 
 typedef struct {
     rtt_cb_t    overflow_cb;    /**< called from RTT interrupt on overflow */
@@ -46,7 +50,8 @@ static rtt_state_t rtt_callback;
  * divider. There are 2 cascaded dividers in the clock path:
  *
  *  - GCLK_GENDIV_DIV(n): between 1 and 31
- *  - RTC_MODE0_CTRL_PRESCALER_DIVn: between 1 and 1024, see defines in `component_rtc.h`
+ *  - RTC_MODE0_CTRL_PRESCALER_DIVn: between 1 and 1024,
+ *    see defines in `component_rtc.h`
  *
  * However the division scheme of GCLK_GENDIV_DIV can be changed by setting
  * GCLK_GENCTRL_DIVSEL:
@@ -61,32 +66,8 @@ void rtt_init(void)
     /* Turn on power manager for RTC */
     PM->APBAMASK.reg |= PM_APBAMASK_RTC;
 
-    /* RTC uses External 32,768KHz Oscillator because OSC32K isn't accurate
+    /* RTC uses GEN2_XOSC32 because OSC32K isn't accurate
      * enough (p1075/1138). Also keep running in standby. */
-    SYSCTRL->XOSC32K.reg =  SYSCTRL_XOSC32K_ONDEMAND |
-                            SYSCTRL_XOSC32K_EN32K |
-                            SYSCTRL_XOSC32K_XTALEN |
-                            SYSCTRL_XOSC32K_STARTUP(6) |
-#if RTT_RUNSTDBY
-                            SYSCTRL_XOSC32K_RUNSTDBY |
-#endif
-                            SYSCTRL_XOSC32K_ENABLE;
-
-    /* Setup clock GCLK2 with divider 1 */
-    GCLK->GENDIV.reg = GCLK_GENDIV_ID(2) | GCLK_GENDIV_DIV(1);
-    while (GCLK->STATUS.bit.SYNCBUSY) {}
-
-    /* Enable GCLK2 with XOSC32K as source. Use divider without modification
-     * and keep running in standby. */
-    GCLK->GENCTRL.reg = GCLK_GENCTRL_ID(2) |
-                        GCLK_GENCTRL_GENEN |
-#if RTT_RUNSTDBY
-                        GCLK_GENCTRL_RUNSTDBY |
-#endif
-                        GCLK_GENCTRL_SRC_XOSC32K;
-    while (GCLK->STATUS.bit.SYNCBUSY) {}
-
-    /* Connect GCLK2 to RTC */
     GCLK->CLKCTRL.reg = GCLK_CLKCTRL_GEN_GCLK2 |
                         GCLK_CLKCTRL_CLKEN |
                         GCLK_CLKCTRL_ID(RTC_GCLK_ID);
@@ -99,8 +80,10 @@ void rtt_init(void)
     rtcMode0->CTRL.bit.SWRST = 1;
     while (rtcMode0->STATUS.bit.SYNCBUSY || rtcMode0->CTRL.bit.SWRST) {}
 
-    /* Configure as 32bit counter with no prescaler and no clear on match compare */
-    rtcMode0->CTRL.reg = RTC_MODE0_CTRL_MODE_COUNT32 | RTC_MODE0_CTRL_PRESCALER_DIV1;
+    /* Configure as 32bit counter with no prescaler and
+     * no clear on match compare */
+    rtcMode0->CTRL.reg = RTC_MODE0_CTRL_MODE_COUNT32 |
+                         RTC_MODE0_CTRL_PRESCALER_DIV1;
     while (rtcMode0->STATUS.bit.SYNCBUSY) {}
 
     /* Setup interrupt */
@@ -194,18 +177,19 @@ void RTT_ISR(void)
     RtcMode0 *rtcMode0 = &(RTT_DEV);
     uint8_t status = rtcMode0->INTFLAG.reg;
 
-    if ( (status & RTC_MODE0_INTFLAG_CMP0) && (rtt_callback.alarm_cb != NULL) ) {
+    if ((status & RTC_MODE0_INTFLAG_CMP0) &&
+        (rtt_callback.alarm_cb != NULL) ) {
         rtt_callback.alarm_cb(rtt_callback.alarm_arg);
         rtcMode0->INTFLAG.bit.CMP0 = 1;
     }
 
-    if ( (status & RTC_MODE0_INTFLAG_OVF) && (rtt_callback.overflow_cb != NULL) ) {
+    if ((status & RTC_MODE0_INTFLAG_OVF) &&
+        (rtt_callback.overflow_cb != NULL) ) {
         rtt_callback.overflow_cb(rtt_callback.overflow_arg);
         rtcMode0->INTFLAG.bit.OVF = 1;
     }
 
     cortexm_isr_end();
 }
-
 
 #endif /* RTT_NUMOF */
