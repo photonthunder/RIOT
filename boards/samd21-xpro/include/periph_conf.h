@@ -63,7 +63,9 @@ extern "C" {
  *
  * @{
  */
-#define CLOCK_USE_PLL       (1)
+#define CLOCK_USE_PLL               (1)
+#define CLOCK_USE_XOSC32_DFLL       (0)
+#define CLOCK_USE_8MHZ_DEFAULT      (0)
 
 #if CLOCK_USE_PLL
 /* edit these values to adjust the PLL output frequency */
@@ -73,15 +75,16 @@ extern "C" {
 #define CLOCK_CORECLOCK     (((CLOCK_PLL_MUL + 1) * 1000000U) / CLOCK_PLL_DIV)
 #elif CLOCK_USE_XOSC32_DFLL
 /* Settings for 32 kHz external oscillator and 48 MHz DFLL */
-#define CLOCK_CORECLOCK     (48000000U)
+#define CLOCK_CORECLOCK     (48000000UL)
 #define CLOCK_XOSC32K       (32768UL)
-#define CLOCK_8MHZ          (1)
-#define GEN2_ULP32K         (1)
-#else
+#define GEN2_XOSC32         (1)
+#elif CLOCK_USE_8MHZ_DEFAULT
 /* edit this value to your needs */
 #define CLOCK_DIV           (1U)
 /* generate the actual core clock frequency */
 #define CLOCK_CORECLOCK     (8000000 / CLOCK_DIV)
+#else
+#error Need to select a core clock
 #endif
 /** @} */
 
@@ -277,7 +280,7 @@ static const spi_conf_t spi_config[] = {
 #define RTT_ISR             isr_rtc
 #define RTT_MAX_VALUE       (0xffffffff)
 #define RTT_FREQUENCY       (32768U)    /* in Hz. For changes see `rtt.c` */
-#define RTT_RUNSTDBY        (1)         /* Keep RTT running in sleep states */
+#define XOSC32_RUNSTDBY     (1)         /* Keep RTT running in sleep states */
 /** @} */
 
 /**
