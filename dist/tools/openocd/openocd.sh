@@ -138,7 +138,24 @@ do_flash() {
         fi
     fi
     # flash device
-    sh -c "${OPENOCD} -f '${OPENOCD_CONFIG}' \
+    if [ -n "${APPLICATION_START}" ]; then
+        sh -c "${OPENOCD} -f '${OPENOCD_CONFIG}' \
+            ${OPENOCD_EXTRA_INIT} \
+            -c 'tcl_port 0' \
+            -c 'telnet_port 0' \
+            -c 'gdb_port 0' \
+            -c 'init' \
+            -c 'targets' \
+            -c 'reset halt' \
+            ${OPENOCD_PRE_FLASH_CMDS} \
+            -c 'flash write_image erase \"${HEXFILE}\" ${APPLICATION_START}' \
+            -c 'reset halt' \
+            ${OPENOCD_PRE_VERIFY_CMDS} \
+            -c 'reset run' \
+            -c 'shutdown'" &&
+        echo "App Done"
+    else
+        sh -c "${OPENOCD} -f '${OPENOCD_CONFIG}' \
             ${OPENOCD_EXTRA_INIT} \
             -c 'tcl_port 0' \
             -c 'telnet_port 0' \
@@ -153,7 +170,8 @@ do_flash() {
             -c 'verify_image \"${HEXFILE}\"' \
             -c 'reset run' \
             -c 'shutdown'" &&
-    echo 'Done flashing'
+        echo "Boot Done"
+    fi
 }
 
 do_flash_elf() {
