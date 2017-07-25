@@ -96,7 +96,12 @@ static int init_base(uart_t uart, uint32_t baudrate)
     dev->BAUD.FRAC.FP = (baud % 10);
     dev->BAUD.FRAC.BAUD = (baud / 10);
     /* enable receiver and transmitter, use 1 stop bit */
-    dev->CTRLB.reg = (SERCOM_USART_CTRLB_RXEN | SERCOM_USART_CTRLB_TXEN);
+    dev->CTRLB.reg = (SERCOM_USART_CTRLB_RXEN |
+                      SERCOM_USART_CTRLB_TXEN);
+    /* wakeup receive from sleep */
+    if (uart_config[uart].wakeup == true) {
+        dev->CTRLB.reg |= SERCOM_USART_CTRLB_SFDE;
+    }
     while (dev->SYNCBUSY.reg & SERCOM_USART_SYNCBUSY_CTRLB) {}
     /* finally, enable the device */
     dev->CTRLA.reg |= SERCOM_USART_CTRLA_ENABLE;

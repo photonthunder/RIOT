@@ -112,7 +112,8 @@ static const uart_conf_t uart_config[] = {
         .tx_pin = GPIO_PIN(PB,22),
         .mux    = GPIO_MUX_D,
         .rx_pad = UART_PAD_RX_3,
-        .tx_pad = UART_PAD_TX_2
+        .tx_pad = UART_PAD_TX_2,
+        .wakeup = false
     },
     {
         .dev    = &SERCOM0->USART,
@@ -120,7 +121,8 @@ static const uart_conf_t uart_config[] = {
         .tx_pin = GPIO_PIN(PA,10),
         .mux    = GPIO_MUX_C,
         .rx_pad = UART_PAD_RX_3,
-        .tx_pad = UART_PAD_TX_2
+        .tx_pad = UART_PAD_TX_2,
+        .wakeup = false
     }
 };
 
