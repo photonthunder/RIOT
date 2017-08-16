@@ -51,7 +51,7 @@ int timer_init(tim_t dev, unsigned long freq, timer_cb_t cb, void *arg)
     }
 
     /* Run using the 1 MHZ clock source */
-#ifndef GEN1_1MHZ
+#if GEN1_1MHZ == 0
 #error Set GEN1_1MHZ in periph_conf.h to use timer
 #endif
     /* USE GEN1_1MHZ to feed TC3, TC4 and TC5 */;

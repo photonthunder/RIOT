@@ -29,7 +29,7 @@
 /* guard file in case no RTC device was specified */
 #if RTC_NUMOF
 
-#ifndef GEN2_XOSC32
+#if GEN2_XOSC32 == 0
 #error Set GEN2_XOSC32 in periph_conf.h to use RTC
 #endif
 

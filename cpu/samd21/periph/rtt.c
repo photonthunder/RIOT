@@ -33,7 +33,7 @@
 #define RTT_PRESCALER       RTC_MODE0_CTRL_PRESCALER_DIV1
 #endif
 
-#ifndef GEN2_XOSC32
+#if GEN2_XOSC32 == 0
 #error Set GEN2_XOSC32 in periph_conf.h to use RTT
 #endif
 
