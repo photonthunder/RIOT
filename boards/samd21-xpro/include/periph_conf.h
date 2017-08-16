@@ -76,6 +76,8 @@ extern "C" {
 #elif CLOCK_USE_XOSC32_DFLL
 /* Settings for 32 kHz external oscillator and 48 MHz DFLL */
 #define CLOCK_CORECLOCK     (48000000UL)
+#define CLOCK_XOSC32K       (32768UL)
+#define GEN2_XOSC32         (1)
 #elif CLOCK_USE_8MHZ_DEFAULT
 /* edit this value to your needs */
 #define CLOCK_DIV           (1U)
@@ -84,12 +86,6 @@ extern "C" {
 #else
 #error Need to select a core clock
 #endif
-
-#define CLOCK_8MHZ          (8000000UL)
-#define GEN1_1MHZ           (1)
-#define CLOCK_XOSC32K       (32768UL)
-#define GEN2_XOSC32         (1)
-#define GEN3_ULP32K         (1)
 /** @} */
 
 /**
@@ -281,13 +277,7 @@ static const spi_conf_t spi_config[] = {
 #define RTT_ISR             isr_rtc
 #define RTT_MAX_VALUE       (0xffffffff)
 #define RTT_FREQUENCY       (32768U)    /* in Hz. For changes see `rtt.c` */
-#define RTT_RUNSTDBY        (1)         /* Keep RTT running in sleep states */
-
-#if RTT_NUMOF || RTC_NUMOF
-#ifndef XOSC32_RUNSTDBY
-#define XOSC32_RUNSTDBY     (1)
-#endif
-#endif
+#define XOSC32_RUNSTDBY     (1)         /* Keep RTT running in sleep states */
 /** @} */
 
 /**

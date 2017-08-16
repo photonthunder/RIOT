@@ -110,12 +110,13 @@ static void clk_init(void)
 #endif
 
 #if GEN3_ULP32K
-    /* Setup Clock generator 3 with divider 1 (32.768kHz) */
-    GCLK->GENDIV.reg =  (GCLK_GENDIV_DIV(1) |
+    /* Setup Clock generator 3 with divider 32 (32.768kHz/32 = 1.024 kHz) */
+    GCLK->GENDIV.reg =  (GCLK_GENDIV_DIV(4) |
                          GCLK_GENDIV_ID(3));
     GCLK->GENCTRL.reg = (GCLK_GENCTRL_GENEN |
                          GCLK_GENCTRL_SRC_OSCULP32K |
                          GCLK_GENCTRL_RUNSTDBY |
+                         GCLK_GENCTRL_DIVSEL |
                          GCLK_GENCTRL_ID(3));
     
     while (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY) {}

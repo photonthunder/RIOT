@@ -33,16 +33,17 @@ extern "C" {
 #endif
 
 /**
- * @brief   External oscillator and clock configuration
+ * @name   External oscillator and clock configuration
  *
- * For selection of the used CORECLOCK, we have implemented two choices:
+ * There are three choices for selection of CORECLOCK:
  *
+ * - usage of the 48 MHz DFLL fed by external oscillator running at 32 kHz
  * - usage of the PLL fed by the internal 8MHz oscillator divided by 8
  * - usage of the internal 8MHz oscillator directly, divided by N if needed
  *
  *
  * The PLL option allows for the usage of a wider frequency range and a more
- * stable clock with less jitter. This is why we use this option as default.
+ * stable clock with less jitter. This is why this option is default.
  *
  * The target frequency is computed from the PLL multiplier and the PLL divisor.
  * Use the following formula to compute your values:
@@ -63,19 +64,28 @@ extern "C" {
  *
  * @{
  */
-#define CLOCK_USE_PLL       (1)
-
+#define CLOCK_USE_PLL               (1)
+#define CLOCK_USE_XOSC32_DFLL       (0)
+#define CLOCK_USE_8MHZ_DEFAULT      (0)
+    
 #if CLOCK_USE_PLL
-/* edit these values to adjust the PLL output frequency */
+    /* edit these values to adjust the PLL output frequency */
 #define CLOCK_PLL_MUL       (47U)               /* must be >= 31 & <= 95 */
 #define CLOCK_PLL_DIV       (1U)                /* adjust to your needs */
-/* generate the actual used core clock frequency */
+    /* generate the actual used core clock frequency */
 #define CLOCK_CORECLOCK     (((CLOCK_PLL_MUL + 1) * 1000000U) / CLOCK_PLL_DIV)
-#else
-/* edit this value to your needs */
+#elif CLOCK_USE_XOSC32_DFLL
+    /* Settings for 32 kHz external oscillator and 48 MHz DFLL */
+#define CLOCK_CORECLOCK     (48000000UL)
+#define CLOCK_XOSC32K       (32768UL)
+#define GEN2_XOSC32         (1)
+#elif CLOCK_USE_8MHZ_DEFAULT
+    /* edit this value to your needs */
 #define CLOCK_DIV           (1U)
-/* generate the actual core clock frequency */
+    /* generate the actual core clock frequency */
 #define CLOCK_CORECLOCK     (8000000 / CLOCK_DIV)
+#else
+#error Need to select a core clock
 #endif
 /** @} */
 
@@ -235,7 +245,7 @@ static const spi_conf_t spi_config[] = {
 #define RTT_ISR             isr_rtc
 #define RTT_MAX_VALUE       (0xffffffff)
 #define RTT_FREQUENCY       (32768U)    /* in Hz. For changes see `rtt.c` */
-#define RTT_RUNSTDBY        (1)         /* Keep RTT running in sleep states */
+#define XOSC32_RUNSTDBY     (1)         /* Keep RTT running in sleep states */
 /** @} */
 
 #ifdef __cplusplus

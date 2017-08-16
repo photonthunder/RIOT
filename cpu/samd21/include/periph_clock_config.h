@@ -47,7 +47,7 @@ extern "C" {
 #endif
 
 #ifndef GEN3_ULP32K
-#define GEN3_ULP32K             (1)
+#define GEN3_ULP32K             (0)
 #endif
 
 #ifdef __cplusplus
