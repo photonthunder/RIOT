@@ -26,6 +26,18 @@ extern "C" {
 /**
  * @brief   Default Clock configurations
  */
+    
+/* If RTC or RTT is on Need XOSC32 */
+#if RTC_NUMOF || RTT_NUMOFF
+#ifndef CLOCK_XOSC32K
+#define CLOCK_XOSC32K       (32768UL)
+#endif
+#ifndef GEN2_XOSC32
+#define GEN2_XOSC32         (1)
+#endif
+#endif
+    
+/* If never set then use these defaults */
 #ifndef CLOCK_8MHZ
 #define CLOCK_8MHZ              (8000000UL)
 #endif
@@ -33,7 +45,7 @@ extern "C" {
 #ifndef CLOCK_XOSC32K
 #define CLOCK_XOSC32K           (0)
 #endif
-
+    
 #ifndef XOSC32_RUNSTDBY
 #define XOSC32_RUNSTDBY         (0)
 #endif

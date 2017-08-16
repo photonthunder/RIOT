@@ -253,7 +253,7 @@ static const spi_conf_t spi_config[] = {
 #define I2C_0_SCL           GPIO_PIN(PA, 9) /* SERCOM0-SCL, on-board pull-up */
 #define I2C_0_MUX           GPIO_MUX_C
 /** @} */
-
+    
 /**
  * @name RTC configuration
  * @{
