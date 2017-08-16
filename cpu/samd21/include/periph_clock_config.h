@@ -28,7 +28,7 @@ extern "C" {
  */
     
 /* If RTC or RTT is on Need XOSC32 */
-#if RTC_NUMOF || RTT_NUMOFF
+#if RTC_NUMOF || RTT_NUMOF
 #ifndef CLOCK_XOSC32K
 #define CLOCK_XOSC32K       (32768UL)
 #endif
