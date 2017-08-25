@@ -136,11 +136,11 @@ void buffer_write_char(void) {
 	do {
 		while (!(_uart(UART_STDIO_DEV)->INTFLAG.reg & SERCOM_USART_INTFLAG_DRE)) {}
 		_uart(UART_STDIO_DEV)->DATA.reg = PrintBuffer[PrintHead];
-		if (PrintHead == PrintTail) return;
 		PrintHead++;
 		if (PrintHead == 1024) {
 			PrintHead = 0;
 		}
+        if (PrintHead == PrintTail) return;
 	} while(PrintBuffer[PrintHead-1] != '\n');
 }
 
