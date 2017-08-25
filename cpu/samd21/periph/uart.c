@@ -116,20 +116,15 @@ static void _uart_write(uart_t uart, const uint8_t *data, size_t len) {
 }
 
 bool BufferedPrinting = false;
-uint8_t PrintBuffer[1024];
-uint16_t PrintTail = 0;
-uint16_t PrintHead = 0;
+uint8_t PrintBuffer[256];
+uint8_t PrintTail = 0;
+uint8_t PrintHead = 0;
 
 static void _uart_buffer_write(const uint8_t *data, size_t len) {
-	for (uint16_t i = 0; i < len ; i++) {
+	for (uint8_t i = 0; i < len ; i++) {
 		PrintBuffer[i+PrintTail] = data[i];
 	}
-	if (PrintTail + len > 1023) {
-		PrintTail += len - 1023;
-	}
-	else {
-		PrintTail += len;
-	}
+	PrintTail += len;
 }
 
 void buffer_write_char(void) {
@@ -137,10 +132,7 @@ void buffer_write_char(void) {
 		while (!(_uart(UART_STDIO_DEV)->INTFLAG.reg & SERCOM_USART_INTFLAG_DRE)) {}
 		_uart(UART_STDIO_DEV)->DATA.reg = PrintBuffer[PrintHead];
 		PrintHead++;
-		if (PrintHead == 1024) {
-			PrintHead = 0;
-		}
-        if (PrintHead == PrintTail) return;
+		if (PrintHead == PrintTail) return;
 	} while(PrintBuffer[PrintHead-1] != '\n');
 }
 
