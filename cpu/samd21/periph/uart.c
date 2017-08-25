@@ -122,7 +122,8 @@ uint8_t PrintHead = 0;
 
 static void _uart_buffer_write(const uint8_t *data, size_t len) {
 	for (uint8_t i = 0; i < len ; i++) {
-		PrintBuffer[i+PrintTail] = data[i];
+        uint8_t index = i + PrintTail;
+		PrintBuffer[index] = data[i];
 	}
 	PrintTail += len;
 }
