@@ -22,7 +22,7 @@
  */
 
 #include "cpu.h"
-
+#include "board.h"
 #include "periph/uart.h"
 #include "periph/gpio.h"
 
@@ -108,11 +108,53 @@ static int init_base(uart_t uart, uint32_t baudrate)
     return UART_OK;
 }
 
-void uart_write(uart_t uart, const uint8_t *data, size_t len)
-{
+static void _uart_write(uart_t uart, const uint8_t *data, size_t len) {
     for (size_t i = 0; i < len; i++) {
         while (!(_uart(uart)->INTFLAG.reg & SERCOM_USART_INTFLAG_DRE)) {}
-        _uart(uart)->DATA.reg = data[i];
+			_uart(uart)->DATA.reg = data[i];
+    }
+}
+
+bool BufferedPrinting = false;
+uint8_t PrintBuffer[1024];
+uint16_t PrintTail = 0;
+uint16_t PrintHead = 0;
+
+static void _uart_buffer_write(const uint8_t *data, size_t len) {
+	for (uint16_t i = 0; i < len ; i++) {
+		PrintBuffer[i+PrintTail] = data[i];
+	}
+	if (PrintTail + len > 1023) {
+		PrintTail += len - 1023;
+	}
+	else {
+		PrintTail += len;
+	}
+}
+
+void buffer_write_char(void) {
+	do {
+		while (!(_uart(UART_STDIO_DEV)->INTFLAG.reg & SERCOM_USART_INTFLAG_DRE)) {}
+		_uart(UART_STDIO_DEV)->DATA.reg = PrintBuffer[PrintHead];
+		if (PrintHead == PrintTail) return;
+		PrintHead++;
+		if (PrintHead == 1024) {
+			PrintHead = 0;
+		}
+	} while(PrintBuffer[PrintHead-1] != '\n');
+}
+
+bool isPrintBufferEmpty(void) {
+	return (PrintHead == PrintTail);
+}
+
+void uart_write(uart_t uart, const uint8_t *data, size_t len)
+{
+    if ((BufferedPrinting) && (uart == UART_STDIO_DEV)) {
+		_uart_buffer_write(data, len);
+    }
+    else {
+		_uart_write(uart, data, len);
     }
 }
 
