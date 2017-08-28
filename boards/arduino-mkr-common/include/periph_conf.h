@@ -31,11 +31,7 @@ extern "C" {
 #endif
 
 /**
-<<<<<<< HEAD:boards/arduino-mkr1000/include/periph_conf.h
- * @name   External oscillator and clock configuration
-=======
  * @name    External oscillator and clock configuration
->>>>>>> master:boards/arduino-mkr-common/include/periph_conf.h
  *
  * There are three choices for selection of CORECLOCK:
  *
