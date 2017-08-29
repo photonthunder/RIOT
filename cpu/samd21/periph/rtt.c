@@ -28,7 +28,6 @@
 /* guard file in case no RTT device was specified */
 #if RTT_NUMOF
 
-
 #ifndef RTT_PRESCALER
 #define RTT_PRESCALER       RTC_MODE0_CTRL_PRESCALER_DIV1
 #endif
