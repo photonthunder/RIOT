@@ -147,7 +147,13 @@ static int init_base(uart_t uart, uint32_t baudrate)
     _uart(uart)->BAUD.bit.BAUD = baud_calculated;
 
     /* enable receiver and transmitter, one stop bit*/
-    _uart(uart)->CTRLB.reg = (SERCOM_USART_CTRLB_RXEN | SERCOM_USART_CTRLB_TXEN);
+    _uart(uart)->CTRLB.reg = (SERCOM_USART_CTRLB_RXEN |
+                              SERCOM_USART_CTRLB_TXEN);
+    /* wakeup receive from sleep */
+    if (uart_config[uart].wakeup == true) {
+        _uart(uart)->CTRLB.reg |= SERCOM_USART_CTRLB_SFDE;
+    }
+
     while(_uart(uart)->SYNCBUSY.bit.CTRLB) {}
     uart_poweron(uart);
 #endif
