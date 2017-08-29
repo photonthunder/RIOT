@@ -24,6 +24,7 @@
 #include "cpu.h"
 #include "periph/gpio.h"
 #include "periph_conf.h"
+#include "periph_clock_config.h"
 
 #define ENABLE_DEBUG (0)
 #include "debug.h"
@@ -148,17 +149,20 @@ int gpio_init_int(gpio_t pin, gpio_mode_t mode, gpio_flank_t flank,
         return -1;
     }
 
+    /* use ULP 32kHZ for EIC module */
+    setup_gen3_ULP32k();
+
     /* save callback */
     gpio_config[exti].cb = cb;
     gpio_config[exti].arg = arg;
     /* configure pin as input and set MUX to peripheral function A */
     gpio_init(pin, mode);
     gpio_init_mux(pin, GPIO_MUX_A);
-    /* enable clocks for the EIC module */
+    /* enable clock for the EIC module */
     PM->APBAMASK.reg |= PM_APBAMASK_EIC;
     GCLK->CLKCTRL.reg = (EIC_GCLK_ID |
                          GCLK_CLKCTRL_CLKEN |
-                         GCLK_CLKCTRL_GEN_GCLK2);
+                         GCLK_CLKCTRL_GEN_GCLK3);
     while (GCLK->STATUS.bit.SYNCBUSY) {}
     /* configure the active flank */
     EIC->CONFIG[exti >> 3].reg &= ~(0xf << ((exti & 0x7) * 4));

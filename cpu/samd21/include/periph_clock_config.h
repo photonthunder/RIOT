@@ -11,7 +11,7 @@
  * @{
  *
  * @file
- * @brief           CPU specific definitions for default clock configuration
+ * @brief           CPU specific definitions for generic clock generators
  *
  * @author          Daniel Evans <photonthunder@gmail.com>
  */
@@ -24,43 +24,28 @@ extern "C" {
 #endif
 
 /**
- * @brief   Default Clock configurations
+ * @name generic clock generator 1
+ * @brief setup 1 MHz clock on generic clock generator 1
+ * @{
  */
-    
-/* If RTC or RTT is on Need XOSC32 */
-#if RTC_NUMOF || RTT_NUMOF
-#ifndef CLOCK_XOSC32K
-#define CLOCK_XOSC32K       (32768UL)
-#endif
-#ifndef GEN2_XOSC32
-#define GEN2_XOSC32         (1)
-#endif
-#endif
-    
-/* If never set then use these defaults */
-#ifndef CLOCK_8MHZ
-#define CLOCK_8MHZ              (8000000UL)
-#endif
+uint8_t setup_gen1_1MHz(void);
+/** @} */
 
-#ifndef CLOCK_XOSC32K
-#define CLOCK_XOSC32K           (0)
-#endif
-    
-#ifndef XOSC32_RUNSTDBY
-#define XOSC32_RUNSTDBY         (0)
-#endif
+/**
+ * @name generic clock generator 2
+ * @brief setup 32 kHz XOSC on generic clock generator 2
+ * @{
+ */
+void setup_gen2_xosc32(bool standby);
+/** @} */
 
-#ifndef GEN1_1MHZ
-#define GEN1_1MHZ               (1)
-#endif
-
-#ifndef GEN2_XOSC32
-#define GEN2_XOSC32             (0)
-#endif
-
-#ifndef GEN3_ULP32K
-#define GEN3_ULP32K             (0)
-#endif
+/**
+ * @name generic clock generator 3
+ * @brief setup 32 kHz ULP internal clock on generic clock generator 3
+ * @{
+ */
+void setup_gen3_ULP32k(void);
+/** @} */
 
 #ifdef __cplusplus
 }

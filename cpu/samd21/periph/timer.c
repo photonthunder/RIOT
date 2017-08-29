@@ -51,9 +51,7 @@ int timer_init(tim_t dev, unsigned long freq, timer_cb_t cb, void *arg)
     }
 
     /* Run using the 1 MHZ clock source */
-#if GEN1_1MHZ == 0
-#error Set GEN1_1MHZ in periph_conf.h to use timer
-#endif
+    setup_gen1_1MHz();
     /* USE GEN1_1MHZ to feed TC3, TC4 and TC5 */;
     /* configure GCLK1 to feed TC3, TC4 and TC5 */;
     GCLK->CLKCTRL.reg = ((GCLK_CLKCTRL_CLKEN |
@@ -307,7 +305,7 @@ void TIMER_0_ISR(void)
             config[TIMER_0].cb(config[TIMER_0].arg, 1);
         }
     }
-    
+
     cortexm_isr_end();
 }
 #endif /* TIMER_0_EN */
@@ -329,7 +327,7 @@ void TIMER_1_ISR(void)
             config[TIMER_1].cb(config[TIMER_1].arg, 1);
         }
     }
-    
+
     cortexm_isr_end();
 }
 #endif /* TIMER_1_EN */

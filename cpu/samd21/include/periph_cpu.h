@@ -29,6 +29,13 @@ extern "C" {
 #endif
 
 /**
+ * @brief   Available core clock configurations
+ */
+#define CLOCK_USE_PLL       (0)
+#define CLOCK_USE_DFLL      (1)
+#define CLOCK_USE_8MHZ      (2)
+
+/**
  * @brief   Available ports on the SAMD21
  */
 enum {

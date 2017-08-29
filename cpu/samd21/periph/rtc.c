@@ -29,10 +29,6 @@
 /* guard file in case no RTC device was specified */
 #if RTC_NUMOF
 
-#if GEN2_XOSC32 == 0
-#error Set GEN2_XOSC32 in periph_conf.h to use RTC
-#endif
-
 typedef struct {
     rtc_alarm_cb_t cb;        /**< callback called from RTC interrupt */
     void *arg;                /**< argument passed to the callback */
@@ -51,6 +47,8 @@ void rtc_init(void)
 
     /* Turn on power manager for RTC */
     PM->APBAMASK.reg |= PM_APBAMASK_RTC;
+
+    setup_gen2_xosc32(false);
 
     /* RTC uses GEN2_XOSC32 because OSC32K isn't accurate
      * enough (p1075/1138). */

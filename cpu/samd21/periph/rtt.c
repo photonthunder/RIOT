@@ -28,16 +28,12 @@
 /* guard file in case no RTT device was specified */
 #if RTT_NUMOF
 
-#if GEN2_XOSC32 == 0
-#error Set GEN2_XOSC32 in periph_conf.h to use RTT
-#endif
-
 typedef struct {
     rtt_cb_t    overflow_cb;    /**< called from RTT interrupt on overflow */
     void*       overflow_arg;   /**< argument passed to overflow callback */
 
     rtt_cb_t    alarm_cb;       /**< called from RTT interrupt on alarm */
-    void*       alarm_arg;      /**< argument passen to alarm callback */
+    void*       alarm_arg;      /**< argument passed to alarm callback */
 } rtt_state_t;
 
 static rtt_state_t rtt_callback;
@@ -65,6 +61,13 @@ void rtt_init(void)
 
     /* Turn on power manager for RTC */
     PM->APBAMASK.reg |= PM_APBAMASK_RTC;
+
+#if RTT_RUNSTDBY
+    bool rtt_run_in_standby = true;
+#else
+    bool rtt_run_in_standby = false;
+#endif
+    setup_gen2_xosc32(rtt_run_in_standby);
 
     /* RTC uses GEN2_XOSC32 because OSC32K isn't accurate
      * enough (p1075/1138). Also keep running in standby. */
