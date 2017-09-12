@@ -128,6 +128,7 @@ typedef struct {
     uart_rxpad_t rx_pad;    /**< pad selection for RX line */
     uart_txpad_t tx_pad;    /**< pad selection for TX line */
     uint8_t runstdby;       /**< allow SERCOM to run in standby mode */
+    bool wakeup;         /**< wake from sleep on receive line */
     uint8_t gclk_src;       /**< GCLK source which supplys SERCOM */
 } uart_conf_t;
 

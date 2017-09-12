@@ -110,6 +110,7 @@ static const uart_conf_t uart_config[] = {
         .rx_pad   = UART_PAD_RX_1,
         .tx_pad   = UART_PAD_TX_2,
         .runstdby = 0,
+        .wakeup   = false,
         .gclk_src = GCLK_CLKCTRL_GEN_GCLK0
     },
     {
@@ -120,6 +121,7 @@ static const uart_conf_t uart_config[] = {
         .rx_pad   = UART_PAD_RX_1,
         .tx_pad   = UART_PAD_TX_0_RTS_2_CTS_3,
         .runstdby = 0,
+        .wakeup   = false,
         .gclk_src = GCLK_CLKCTRL_GEN_GCLK0
     },
     {
@@ -130,6 +132,7 @@ static const uart_conf_t uart_config[] = {
         .rx_pad   = UART_PAD_RX_1,
         .tx_pad   = UART_PAD_TX_2,
         .runstdby = 0,
+        .wakeup   = false,
         .gclk_src = GCLK_CLKCTRL_GEN_GCLK0
     },
     {
@@ -140,6 +143,7 @@ static const uart_conf_t uart_config[] = {
         .rx_pad   = UART_PAD_RX_1,
         .tx_pad   = UART_PAD_TX_2,
         .runstdby = 0,
+        .wakeup   = false,
         .gclk_src = GCLK_CLKCTRL_GEN_GCLK0
     }
 };

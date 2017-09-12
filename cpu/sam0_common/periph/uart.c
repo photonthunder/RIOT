@@ -98,6 +98,10 @@ int uart_init(uart_t uart, uint32_t baudrate, uart_rx_cb_t rx_cb, void *arg)
         NVIC_EnableIRQ(SERCOM0_IRQn + sercom_id(dev(uart)));
         dev(uart)->CTRLB.reg |= SERCOM_USART_CTRLB_RXEN;
         dev(uart)->INTENSET.reg |= SERCOM_USART_INTENSET_RXC;
+        /* wakeup receive from sleep */
+        if (uart_config[uart].wakeup == true) {
+            dev(uart)->CTRLB.reg |= SERCOM_USART_CTRLB_SFDE;
+        }
     }
     while (dev(uart)->SYNCBUSY.reg & SERCOM_USART_SYNCBUSY_CTRLB) {}
 
