@@ -149,8 +149,17 @@ int gpio_init_int(gpio_t pin, gpio_mode_t mode, gpio_flank_t flank,
         return -1;
     }
 
-    /* use ULP 32kHZ for EIC module */
-    setup_gen3_ULP32k();
+    uint32_t gclk_src;
+    if (is_gen2_xosc32_enabled()) {
+        /* use XOSC32 if it is enabled */
+        setup_gen2_xosc32(true);
+        gclk_src = GCLK_CLKCTRL_GEN_GCLK2;
+    }
+    else {
+        /* use ULP 32kHZ for EIC module */
+        setup_gen3_ULP32k();
+        gclk_src = GCLK_CLKCTRL_GEN_GCLK2;
+    }
 
     /* save callback */
     gpio_config[exti].cb = cb;
@@ -162,7 +171,7 @@ int gpio_init_int(gpio_t pin, gpio_mode_t mode, gpio_flank_t flank,
     PM->APBAMASK.reg |= PM_APBAMASK_EIC;
     GCLK->CLKCTRL.reg = (EIC_GCLK_ID |
                          GCLK_CLKCTRL_CLKEN |
-                         GCLK_CLKCTRL_GEN_GCLK3);
+                         gclk_src);
     while (GCLK->STATUS.bit.SYNCBUSY) {}
     /* configure the active flank */
     EIC->CONFIG[exti >> 3].reg &= ~(0xf << ((exti & 0x7) * 4));

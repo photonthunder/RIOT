@@ -132,6 +132,10 @@ void setup_gen2_xosc32(bool standby) {
     is_enabled_gen2_xosc32 = true;
 }
 
+bool is_gen2_xosc32_enabled(void) {
+    return is_enabled_gen2_xosc32;
+}
+
 /**
  * @brief setup 32 kHz ULP internal clock on Generic Clock Generator 3
  */
