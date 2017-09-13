@@ -40,6 +40,14 @@ void setup_gen2_xosc32(bool standby);
 /** @} */
 
 /**
+ * @name check generic clock generator 2
+ * @brief check if GCLK2 is enabled
+ * @{
+ */
+bool is_gen2_xosc32_enabled(void);
+/** @} */
+    
+/**
  * @name generic clock generator 3
  * @brief setup 32 kHz ULP internal clock on generic clock generator 3
  * @{
