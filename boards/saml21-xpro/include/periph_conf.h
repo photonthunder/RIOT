@@ -61,6 +61,7 @@ static const uart_conf_t uart_config[] = {
         .rx_pad   = UART_PAD_RX_1,
         .tx_pad   = UART_PAD_TX_0,
         .runstdby = 0,
+        .wakeup   = false,
         .gclk_src = GCLK_PCHCTRL_GEN_GCLK0
     },
     {    /* EXT1 header */
@@ -71,6 +72,7 @@ static const uart_conf_t uart_config[] = {
         .rx_pad   = UART_PAD_RX_1,
         .tx_pad   = UART_PAD_TX_0,
         .runstdby = 0,
+        .wakeup   = false,
         .gclk_src = GCLK_PCHCTRL_GEN_GCLK0
     }
 };
