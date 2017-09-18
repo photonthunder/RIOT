@@ -107,12 +107,47 @@ int uart_init(uart_t uart, uint32_t baudrate, uart_rx_cb_t rx_cb, void *arg)
     return UART_OK;
 }
 
-void uart_write(uart_t uart, const uint8_t *data, size_t len)
-{
+static void _uart_write(uart_t uart, const uint8_t *data, size_t len) {
     for (size_t i = 0; i < len; i++) {
         while (!(dev(uart)->INTFLAG.reg & SERCOM_USART_INTFLAG_DRE)) {}
         dev(uart)->DATA.reg = data[i];
         while (dev(uart)->INTFLAG.reg & SERCOM_USART_INTFLAG_TXC) {}
+    }
+}
+
+bool BufferedPrinting = false;
+uint8_t PrintBuffer[256];
+uint8_t PrintTail = 0;
+uint8_t PrintHead = 0;
+
+static void _uart_buffer_write(const uint8_t *data, size_t len) {
+    for (uint8_t i = 0; i < len ; i++) {
+        uint8_t index = i + PrintTail;
+        PrintBuffer[index] = data[i];
+    }
+    PrintTail += len;
+}
+
+void buffer_write_char(void) {
+    do {
+        while (!(_uart(UART_STDIO_DEV)->INTFLAG.reg & SERCOM_USART_INTFLAG_DRE)) {}
+        dev(UART_STDIO_DEV)->DATA.reg = PrintBuffer[PrintHead];
+        PrintHead++;
+        if (PrintHead == PrintTail) return;
+    } while(PrintBuffer[PrintHead-1] != '\n');
+}
+
+bool isPrintBufferEmpty(void) {
+    return (PrintHead == PrintTail);
+}
+
+void uart_write(uart_t uart, const uint8_t *data, size_t len)
+{
+    if ((BufferedPrinting) && (uart == UART_STDIO_DEV)) {
+        _uart_buffer_write(data, len);
+    }
+    else {
+        _uart_write(uart, data, len);
     }
 }
 
