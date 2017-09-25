@@ -28,6 +28,10 @@
 /* guard file in case no RTT device was specified */
 #if RTT_NUMOF
 
+#ifndef RTT_PRESCALER
+#define RTT_PRESCALER       RTC_MODE0_CTRL_PRESCALER_DIV1
+#endif
+
 typedef struct {
     rtt_cb_t    overflow_cb;    /**< called from RTT interrupt on overflow */
     void*       overflow_arg;   /**< argument passed to overflow callback */
@@ -82,11 +86,9 @@ void rtt_init(void)
     /* Reset RTC */
     rtcMode0->CTRL.bit.SWRST = 1;
     while (rtcMode0->STATUS.bit.SYNCBUSY || rtcMode0->CTRL.bit.SWRST) {}
-
-    /* Configure as 32bit counter with no prescaler and
-     * no clear on match compare */
+    /* Configure as 32bit counter with no prescaler and no clear on match compare */
     rtcMode0->CTRL.reg = RTC_MODE0_CTRL_MODE_COUNT32 |
-                         RTC_MODE0_CTRL_PRESCALER_DIV1;
+                         RTT_PRESCALER;
     while (rtcMode0->STATUS.bit.SYNCBUSY) {}
 
     /* Setup interrupt */
