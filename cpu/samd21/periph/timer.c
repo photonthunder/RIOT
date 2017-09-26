@@ -136,6 +136,7 @@ int timer_set_absolute(tim_t dev, int channel, unsigned int value)
             TIMER_0_DEV.CC[1].reg = value;
             TIMER_0_DEV.INTENSET.bit.MC1 = 1;
             break;
+		}
 #endif
 #if TIMER_1_EN
     case TIMER_1:
@@ -151,6 +152,7 @@ int timer_set_absolute(tim_t dev, int channel, unsigned int value)
             TIMER_1_DEV.CC[1].reg = value;
             TIMER_1_DEV.INTENSET.bit.MC1 = 1;
             break;
+		}
 #endif
         case TIMER_UNDEFINED:
         default:
@@ -175,6 +177,7 @@ int timer_clear(tim_t dev, int channel)
             TIMER_0_DEV.INTFLAG.reg |= TC_INTFLAG_MC1;
             TIMER_0_DEV.INTENCLR.bit.MC1 = 1;
             break;
+		}
 #endif
 #if TIMER_1_EN
     case TIMER_1:
@@ -187,6 +190,7 @@ int timer_clear(tim_t dev, int channel)
             TIMER_1_DEV.INTFLAG.reg |= TC_INTFLAG_MC1;
             TIMER_1_DEV.INTENCLR.bit.MC1 = 1;
             break;
+		}
 #endif
         case TIMER_UNDEFINED:
         default:
