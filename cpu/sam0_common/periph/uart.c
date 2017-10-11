@@ -80,6 +80,7 @@ int uart_init(uart_t uart, uint32_t baudrate, uart_rx_cb_t rx_cb, void *arg)
                       SERCOM_USART_CTRLA_SAMPR(0x1) |
                       SERCOM_USART_CTRLA_TXPO(uart_config[uart].tx_pad) |
                       SERCOM_USART_CTRLA_RXPO(uart_config[uart].rx_pad) |
+                            SERCOM_USART_CTRLA_RUNSTDBY |
                       SERCOM_USART_CTRLA_MODE(0x1));
     /* Set run in standby mode if enabled */
     if (uart_config[uart].flags & UART_FLAG_RUN_STANDBY) {
@@ -100,6 +101,7 @@ int uart_init(uart_t uart, uint32_t baudrate, uart_rx_cb_t rx_cb, void *arg)
         NVIC_EnableIRQ(SERCOM0_IRQn + sercom_id(dev(uart)));
         dev(uart)->CTRLB.reg |= SERCOM_USART_CTRLB_RXEN;
         dev(uart)->INTENSET.reg |= SERCOM_USART_INTENSET_RXC;
+        dev(uart)->INTENSET.reg |= SERCOM_USART_INTENSET_RXS;
         /* set wakeup receive from sleep if enabled */
         if (uart_config[uart].flags & UART_FLAG_WAKEUP) {
             dev(uart)->CTRLB.reg |= SERCOM_USART_CTRLB_SFDE;
@@ -134,12 +136,18 @@ void uart_poweroff(uart_t uart)
     sercom_clk_dis(dev(uart));
 }
 
+volatile bool Uart1Active;
 static inline void irq_handler(unsigned uartnum)
 {
     if (dev(uartnum)->INTFLAG.reg & SERCOM_USART_INTFLAG_RXC) {
         /* interrupt flag is cleared by reading the data register */
+        //Uart1Active = true;
         uart_ctx[uartnum].rx_cb(uart_ctx[uartnum].arg,
                                 (uint8_t)(dev(uartnum)->DATA.reg));
+    }
+    else if (dev(uartnum)->INTFLAG.reg & SERCOM_USART_INTFLAG_RXS) {
+        Uart1Active = true;
+        dev(uartnum)->INTFLAG.reg = SERCOM_USART_INTFLAG_RXS;
     }
     else if (dev(uartnum)->INTFLAG.reg & SERCOM_USART_INTFLAG_ERROR) {
         /* clear error flag */
