@@ -38,13 +38,15 @@
 #define CLOCK_DIV               (1U)
 #endif
 
+#define CLOCK_XOSC32K           (32768U)
+
 #if CLOCK_SRC == CLOCK_USE_PLL
-#define CLOCK_PLL_MUL           (((CLOCK_CORECLOCK * CLOCK_DIV) / 1000000U) - 1)
+#define CLOCK_PLL_MUL           (((CLOCK_CORECLOCK * CLOCK_DIV) / CLOCK_XOSC32K) - 1)
 #endif
 
-#if CLOCK_SRC == CLOCK_USE_DFLL
-#define CLOCK_XOSC32K           (32768U)
-#endif
+//#if CLOCK_SRC == CLOCK_USE_DFLL
+//#define CLOCK_XOSC32K           (32768U)
+//#endif
 
 /* if CLOCK_XOSC32K never set then use these defaults */
 #ifndef CLOCK_XOSC32K
@@ -102,8 +104,7 @@ void setup_gen2_xosc32(bool standby) {
     }
 
     /* Use External 32.768KHz Oscillator */
-    SYSCTRL->XOSC32K.reg = SYSCTRL_XOSC32K_ONDEMAND |
-    SYSCTRL_XOSC32K_EN32K |
+    SYSCTRL->XOSC32K.reg = SYSCTRL_XOSC32K_EN32K |
     SYSCTRL_XOSC32K_XTALEN |
     SYSCTRL_XOSC32K_STARTUP(6) |
     SYSCTRL_XOSC32K_RUNSTDBY;
@@ -158,7 +159,7 @@ static void clk_init(void)
 
     /* configure internal 8MHz oscillator to run without prescaler */
     SYSCTRL->OSC8M.bit.PRESC = 0;
-    SYSCTRL->OSC8M.bit.ONDEMAND = 1;
+    SYSCTRL->OSC8M.bit.ONDEMAND = 0;
     SYSCTRL->OSC8M.bit.RUNSTDBY = 0;
     SYSCTRL->OSC8M.bit.ENABLE = 1;
     while (!(SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_OSC8MRDY)) {}
@@ -169,15 +170,24 @@ static void clk_init(void)
 
 #if CLOCK_SRC == CLOCK_USE_PLL
     setup_gen1_1MHz();
+    setup_gen2_xosc32(true);
     /* Set GEN1_1MHZ as source for PLL */
-    GCLK->CLKCTRL.reg = (GCLK_CLKCTRL_GEN_GCLK1 |
+    GCLK->CLKCTRL.reg = (GCLK_CLKCTRL_GEN_GCLK2 |
                          GCLK_CLKCTRL_ID_FDPLL |
                          GCLK_CLKCTRL_CLKEN);
     while (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY) {}
 
+    /* Calculate LDRFRAC and LDR */
+    uint32_t tmpldr = (CLOCK_CORECLOCK << 4) / CLOCK_XOSC32K;
+    uint8_t tmpldrfrac = tmpldr & 0x0f;
+    tmpldr = (tmpldr >> 4) - 1;
+    
+    SYSCTRL->DPLLRATIO.reg = (SYSCTRL_DPLLRATIO_LDRFRAC(tmpldrfrac) |
+                             SYSCTRL_DPLLRATIO_LDR(tmpldr));
+    
     /* Enable PLL */
-    SYSCTRL->DPLLRATIO.reg = (SYSCTRL_DPLLRATIO_LDR(CLOCK_PLL_MUL));
-    SYSCTRL->DPLLCTRLB.reg = (SYSCTRL_DPLLCTRLB_REFCLK_GCLK);
+    //SYSCTRL->DPLLRATIO.reg = (SYSCTRL_DPLLRATIO_LDR(CLOCK_PLL_MUL));
+    SYSCTRL->DPLLCTRLB.reg = (SYSCTRL_DPLLCTRLB_REFCLK_REF0);
     SYSCTRL->DPLLCTRLA.reg = (SYSCTRL_DPLLCTRLA_ENABLE);
     while(!(SYSCTRL->DPLLSTATUS.reg &
             (SYSCTRL_DPLLSTATUS_CLKRDY |
@@ -190,7 +200,7 @@ static void clk_init(void)
                          GCLK_GENCTRL_SRC_FDPLL |
                          GCLK_GENCTRL_ID(0));
 #elif CLOCK_SRC == CLOCK_USE_DFLL
-    setup_gen2_xosc32(false);
+    setup_gen2_xosc32(true);
     /* Set GEN2_XOSC32 as source for DFLL */
     GCLK->CLKCTRL.reg = (GCLK_CLKCTRL_GEN_GCLK2 |
                          GCLK_CLKCTRL_ID_DFLL48 |
@@ -212,7 +222,7 @@ static void clk_init(void)
                            SYSCTRL_DFLLMUL_MUL(CLOCK_CORECLOCK / CLOCK_XOSC32K);
     SYSCTRL->DFLLVAL.reg = SYSCTRL_DFLLVAL_COARSE(coarse) |
                            SYSCTRL_DFLLVAL_FINE(fine);
-    SYSCTRL->DFLLCTRL.reg = SYSCTRL_DFLLCTRL_MODE;
+    SYSCTRL->DFLLCTRL.reg = SYSCTRL_DFLLCTRL_MODE | SYSCTRL_DFLLCTRL_RUNSTDBY | SYSCTRL_DFLLCTRL_STABLE;
     while ((SYSCTRL->PCLKSR.reg & SYSCTRL_PCLKSR_DFLLRDY) == 0) {
         /* Wait for DFLL sync */
     }
@@ -229,6 +239,7 @@ static void clk_init(void)
                          GCLK_GENDIV_ID(0));
     GCLK->GENCTRL.reg = (GCLK_GENCTRL_GENEN |
                          GCLK_GENCTRL_SRC_DFLL48M |
+                         GCLK_GENCTRL_RUNSTDBY |
                          GCLK_GENCTRL_ID(0));
     while (GCLK->STATUS.reg & GCLK_STATUS_SYNCBUSY) {}
 

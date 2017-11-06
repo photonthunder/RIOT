@@ -65,8 +65,73 @@ extern "C" {
  * @{
  */
 #define CLOCK_SRC                   (CLOCK_USE_PLL)
+#define CLOCK_DIV                   (1)
 #define CLOCK_CORECLOCK             (48000000U)
 /** @} */
+    
+//static const internal_8MHz_conf_t internal_8MHz_config = {
+//    .enable         = true,
+//    .prescaler      = 1,
+//    .ondemand       = false,
+//    .standby        = false,
+//};
+//
+//static const external_32kHz_osc_conf_t external_32kHz_osc_config = {
+//    .enable         = true,
+//    .startup        = 6,
+//    .output_1kHz    = false,
+//    .output_32kHz   = true,
+//    .ondemand       = false,
+//    .standby        = false,
+//};
+//
+//static const clock_gen_conf_t clock_gen_config[] = {
+//    {    /* GCLK Gen 0 */
+//        .enable     = true,
+//        .standby    = false,
+//        .prescaler  = 1,
+//        .output     = false,
+//        .clk_src    = CLOCK_USE_PLL,
+//    },
+//    {    /* GCLK Gen 1 */
+//        .enable     = true,
+//        .standby    = false,
+//        .prescaler  = 8,
+//        .output     = false,
+//        .clk_src    = CLOCK_USE_8MHZ,
+//    },
+//    {    /* GCLK Gen 2 */
+//        .enable     = false,
+//        .standby    = true,
+//        .prescaler  = 1,
+//        .output     = false,
+//        .clk_src    = CLOCK_USE_XOSC32,
+//    },
+//    {    /* GCLK Gen 3 */
+//        .enable     = true,
+//        .standby    = true,
+//        .prescaler  = 32,
+//        .output     = false,
+//        .clk_src    = CLOCK_USE_ULP32,
+//    },
+//};
+//    
+//static const pll_conf_t pll_config = {
+//    .enable         = true,
+//    .standby        = false,
+//    .ondemand       = false,
+//    .clock_multiply = (((CLOCK_CORECLOCK * CLOCK_DIV) / 1000000U) - 1)
+//    .gclock_src     = GCLK_CLKCTRL_GEN_GCLK1,
+//    .flags          = PLL_FLAGS_NONE
+//};
+//    
+//static const dfll_conf_t dfll_config = {
+//    .enable         = false,
+//    .standby        = false
+//    .ondemand       = false,
+//    .gclock_src     = GCLK_CLKCTRL_GEN_GCLK2,
+//    .flags          = DFLL_FLAGS_NONE
+//};
 
 /**
  * @name Timer peripheral configuration
